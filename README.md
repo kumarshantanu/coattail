@@ -2,6 +2,8 @@
 
 Clojure/Script OpenAPI tooling to afford instant leverage.
 
+**EARLY-ALPHA: Very early days. Breaking all the time. Not for production use.**
+
 
 ## Rationale
 

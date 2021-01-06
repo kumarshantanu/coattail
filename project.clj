@@ -1,4 +1,4 @@
-(defproject coattail "0.0.1-alpha0"
+(defproject coattail "0.0.1-SNAPSHOT"
   :description "Clojure/Script OpenAPI tooling to afford instant leverage"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
