@@ -67,7 +67,7 @@
         stat-msg  (str "valid HTTP status code (as per OpenAPI endpoint responses): " statuses)]
     (if (empty? operators)
       identity
-      (fn [handler]
+      (fn response-middleware [handler]
         (fn [request]
           (let [response (-> request
                            (assoc :operators operators)
@@ -164,7 +164,7 @@
                                            (assoc-in result [content-type :data-parser] <>)))
                                     content-handlers
                                     content-handlers)]
-    (fn [handler]
+    (fn request-body-middleware [handler]
       (fn [request]
         (let [content-type (get-in request [:headers "content-type"])]
           (if-some [parser (get-in content-handlers [content-type :parser])]
