@@ -9,7 +9,7 @@
 - [Todo] OpenAPI 3.1 support
 
 
-## [WIP] 0.0.1 / 2021-January-??
+## 0.0.1-alpha0 / 2021-January-07
 
 - OpenAPI operations (OpenAPI 3.0)
   - Payload parsing

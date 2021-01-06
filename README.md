@@ -16,7 +16,7 @@ OpenAPI driven
 
 ## Usage
 
-FIXME
+[![Clojars Project](https://img.shields.io/clojars/v/coattail.svg)](https://clojars.org/coattail)
 
 ### Supported stack
 
