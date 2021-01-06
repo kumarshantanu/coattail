@@ -1,0 +1,35 @@
+@startuml
+' Steps to make a generated handler
+!define Mono(x) <font:"Courier New">x</font>
+actor Caller
+participant "(make-routes)"
+entity Toolbox
+entity OpenAPI
+participant "(make-pp-mw)"
+participant "(make-qp-mw)"
+participant "(make-req-mw)"
+participant "(make-res-mw)"
+database Generated
+Caller -> "(make-routes)": Pass OpenAPI-Document, Toolbox, Handlers
+"(make-routes)" -> "(make-routes)": For each endpoint
+
+"(make-routes)" -> "(make-pp-mw)": Toolbox, Path-params Schema
+"(make-pp-mw)" -> Generated: Generate path-params middleware
+
+"(make-routes)" -> "(make-qp-mw)": Toolbox, Query-params Schema
+"(make-qp-mw)" -> Generated: Generate query-params middleware
+
+"(make-routes)" -> "(make-req-mw)": Toolbox, Request-body Schema (all content-types)
+"(make-req-mw)" <-- Toolbox: Body-Reader: Mono(@[:body-readers :<type>])
+"(make-req-mw)" <-- Toolbox: Content-Parser e.g. string->jsonData Mono(@[:content-codecs content-type :content-parser])
+"(make-req-mw)" <-- OpenAPI: Content-type Mono(@[path / method / content-type])
+"(make-req-mw)" -> Generated: Generate request-body middleware
+
+"(make-routes)" -> "(make-res-mw)": Toolbox, Response Schema (all status, content-types)
+"(make-res-mw)" <-- Toolbox: Content-Writer e.g. jsonData->string Mono(@[:content-codecs content-type :content-parser])
+"(make-res-mw)" -> Generated: Generate response middleware
+
+"(make-routes)" <-- Generated: Wrap handler with middleware
+"(make-routes)" -> "(make-routes)": End For
+"(make-routes)" -> Caller: Return routes with wrapped-handlers
+@enduml

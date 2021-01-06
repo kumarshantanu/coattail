@@ -1,0 +1,28 @@
+@startuml
+' Steps in a generated Ring handler
+participant Server
+boundary GeneratedHandler
+control PathParamsMiddleware
+control QueryParamsMiddleware
+control RequestBodyMiddleware
+control ResponseMiddleware
+participant UsecaseHandler
+Server               -> GeneratedHandler:      Request
+GeneratedHandler     -> PathParamsMiddleware:  Validate path params per OpenAPI schema
+Server           <--    GeneratedHandler:      (on Validation error)
+GeneratedHandler     -> QueryParamsMiddleware: Validate query params per OpenAPI schema
+Server           <--    GeneratedHandler:      (on Validation error)
+GeneratedHandler     -> RequestBodyMiddleware: Dispatch on content-type
+Server           <--    GeneratedHandler:      (on unknown Content-type)
+GeneratedHandler     -> RequestBodyMiddleware: Read body (as string)
+GeneratedHandler     -> RequestBodyMiddleware: Parse body string (e.g. as JSON)
+Server           <--    GeneratedHandler:      (on body parsing error)
+GeneratedHandler     -> RequestBodyMiddleware: Validate per OpenAPI schema
+Server           <--    GeneratedHandler:      (on Validation error)
+GeneratedHandler     -> UsecaseHandler:        Execute
+GeneratedHandler <-     UsecaseHandler:        Response [status code, body-data]
+GeneratedHandler     -> ResponseMiddleware:    Dispatch on status/content-type
+GeneratedHandler     -> ResponseMiddleware:    Fill template with body-data
+GeneratedHandler     -> ResponseMiddleware:    Generate response body
+Server           <-     GeneratedHandler:      Response
+@enduml
