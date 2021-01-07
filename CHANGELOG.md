@@ -9,7 +9,7 @@
 - [Todo] OpenAPI 3.1 support
 
 
-## [WIP] 0.0.1 / 2021-January-??
+## 0.0.1-alpha1 / 2021-January-07
 
 - Use named Ring middleware functions
 - Fix request-body-middleware: Put parsed body under `:data` key in request
