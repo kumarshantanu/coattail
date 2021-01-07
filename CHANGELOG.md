@@ -11,7 +11,7 @@
 
 ## [WIP] 0.0.1 / 2021-January-??
 
-- [Todo] Fix Request body parsing
+- Fix Ring request body parsing
 
 
 ## 0.0.1-alpha1 / 2021-January-07

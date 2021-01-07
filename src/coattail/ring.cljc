@@ -144,7 +144,7 @@
 
 
 (defn make-request-body-middleware
-  "Given a map of the form
+  "Given a content-handlers map of the form
     ```
     {content-type {:parser content-parser
                    :schema content-schema}}
@@ -155,8 +155,8 @@
     - `content-schema` is OpenAPI schema
   return a Ring middleware that parses request body, validates/transforms and processes it."
   [content-handlers openapi-document openapi-toolbox]
-  (let [supported-content-types (-> (keys content-handlers)
-                                    (string/join ", "))
+  (let [supported-content-types (->> (keys content-handlers)
+                                  (string/join ", "))
         content-handlers (reduce-kv (fn [result content-type content-details]
                                       (as-> (get content-details :schema) <>
                                         (openapi/schema->parser <> openapi-document {:data-name "requestBody"
@@ -167,17 +167,17 @@
     (fn request-body-middleware [handler]
       (fn [request]
         (let [content-type (get-in request [:headers "content-type"])]
-          (if-some [parser (get-in content-handlers [content-type :parser])]
-            (let [body-reader (get-in content-handlers [content-type :body-reader])
-                  data-parser (get-in content-handlers [content-type :data-parser])
-                  content (-> request
-                            body-reader
-                            parser)]
-              (if (nil? content)
+          (if-some [content-parser (get-in content-handlers [content-type :content-parser])]
+            (let [body-reader  (get-in content-handlers [content-type :body-reader])
+                  data-parser  (get-in content-handlers [content-type :data-parser])
+                  request-body (:body request)]
+              (if (nil? request-body)
                 {:status 406
                  :body "Request body is missing"
                  :headers {"Content-type" "text/plain"}}
-                (->> content
+                (->> request-body
+                  body-reader
+                  content-parser
                   data-parser
                   (assoc request :data)
                   handler)))
