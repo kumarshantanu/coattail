@@ -188,7 +188,8 @@
                     {:status 400
                      :body (str #?(:cljs (.-message ex)
                                     :clj (.getMessage ex))
-                             (ex-data ex))
+                             \space
+                             (-> ex ex-data pr-str))
                      :headers {"Content-type" "text/plain"}}))))
             {:status 415
              :body (u/format-string "Content type '%s' is not supported. Supported: %s"

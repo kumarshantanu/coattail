@@ -14,7 +14,8 @@
 - Fix Ring request body parsing
 - Include data-name in type-pred msg in `coattail.openapi/core-schema->operator`
 - Turn request parsing exceptions into HTTP 400 response
-- Demunge type-predicate name before reporting it in HTTP 400
+  - Demunge type-predicate name
+  - Format ex-data of the exception message
 
 
 ## 0.0.1-alpha1 / 2021-January-07
