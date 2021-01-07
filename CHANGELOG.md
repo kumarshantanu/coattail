@@ -9,6 +9,11 @@
 - [Todo] OpenAPI 3.1 support
 
 
+## [WIP] 0.0.1 / 2021-January-??
+
+- [Todo] Fix Request body parsing
+
+
 ## 0.0.1-alpha1 / 2021-January-07
 
 - Use named Ring middleware functions
