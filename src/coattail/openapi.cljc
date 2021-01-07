@@ -142,7 +142,7 @@
 (defn array-schema->operator
   [array-name openapi-schema]
   (let [item-schema (get openapi-schema "items")
-        item-op'tor (schema->operator (str array-name "-element") item-schema)
+        item-op'tor (schema->operator (str array-name "[n]") item-schema)
         ;; toolbox items
         expectant   (get *openapi-toolbox* :expectant)
         ;; other items

@@ -16,6 +16,7 @@
 - Turn request parsing exceptions into HTTP 400 response
   - Demunge type-predicate name
   - Format ex-data of the exception message
+- Use `[n]` notation to describe data-name for array element
 
 
 ## 0.0.1-alpha1 / 2021-January-07
