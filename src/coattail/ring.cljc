@@ -175,12 +175,21 @@
                 {:status 406
                  :body "Request body is missing"
                  :headers {"Content-type" "text/plain"}}
-                (->> request-body
-                  body-reader
-                  content-parser
-                  data-parser
-                  (assoc request :data)
-                  handler)))
+                (try
+                  (->> request-body
+                    body-reader
+                    content-parser
+                    data-parser
+                    (assoc request :data)
+                    handler)
+                  (catch #?(:cljs ExceptionInfo
+                             :clj clojure.lang.ExceptionInfo) ex
+                    #?(:clj (.printStackTrace ex))
+                    {:status 400
+                     :body (str #?(:cljs (.-message ex)
+                                    :clj (.getMessage ex))
+                             (ex-data ex))
+                     :headers {"Content-type" "text/plain"}}))))
             {:status 415
              :body (u/format-string "Content type '%s' is not supported. Supported: %s"
                      content-type

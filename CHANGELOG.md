@@ -13,6 +13,7 @@
 
 - Fix Ring request body parsing
 - Include data-name in type-pred msg in `coattail.openapi/core-schema->operator`
+- Turn request parsing exceptions into HTTP 400 response
 
 
 ## 0.0.1-alpha1 / 2021-January-07
