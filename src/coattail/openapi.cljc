@@ -14,6 +14,7 @@
   :writer
   See: [[schema->default]], [[schema->parser]], [[schema->writer]]"
   (:require
+    #?(:clj [clojure.main :refer [demunge]])
     [clojure.string :as string]
     [coattail.internal :as i]
     [coattail.util :as u]))
@@ -80,7 +81,7 @@
                              (expectant pred (str "value to be one of enum values " (string/join ", " data-enum)) x)
                              x))
                          identity)
-        type-pred-msg  (str data-name " value to comply with type predicate " type-pred)]
+        type-pred-msg  (str data-name " value to comply with type predicate " (-> type-pred str demunge))]
     (u/expected fn? "expectant to be a function" expectant)
     (u/expected fn? "type-pred to be a function" type-pred)
     (u/expected fn? "format-parser to be a function" format-parser)
