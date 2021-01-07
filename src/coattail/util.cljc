@@ -188,7 +188,7 @@
                   "integer" {:pred   integer?
                              :format {"int32"     {:parser int      :writer str :default 0}
                                       "int64"     {:parser long     :writer str :default 0}}}
-                  "number"  {:pred   float?
+                  "number"  {:pred   number?
                              :format {"float"     {:parser float    :writer str :default 0.0}
                                       "double"    {:parser double   :writer str :default 0.0}}}
                   "boolean" {:pred   boolean?

@@ -17,6 +17,7 @@
   - Demunge type-predicate name
   - Format ex-data of the exception message
 - Use `[n]` notation to describe data-name for array element
+- Consider all numbers valid for OpenAPI core-type `number`
 
 
 ## 0.0.1-alpha1 / 2021-January-07
