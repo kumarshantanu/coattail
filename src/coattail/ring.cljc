@@ -177,7 +177,10 @@
                 {:status 406
                  :body "Request body is missing"
                  :headers {"Content-type" "text/plain"}}
-                (handler (data-parser content))))
+                (->> content
+                  data-parser
+                  (assoc request :data)
+                  handler)))
             {:status 415
              :body (u/format-string "Content type '%s' is not supported. Supported: %s"
                      content-type

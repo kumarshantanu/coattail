@@ -11,7 +11,8 @@
 
 ## [WIP] 0.0.1 / 2021-January-??
 
-- [Todo] Tests, fixes
+- Use named Ring middleware functions
+- Fix request-body-middleware: Put parsed body under `:data` key in request
 
 
 ## 0.0.1-alpha0 / 2021-January-07
