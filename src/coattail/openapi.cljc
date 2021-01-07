@@ -79,7 +79,8 @@
                            (fn [x]
                              (expectant pred (str "value to be one of enum values " (string/join ", " data-enum)) x)
                              x))
-                         identity)]
+                         identity)
+        type-pred-msg  (str data-name " value to comply with type predicate " type-pred)]
     (u/expected fn? "expectant to be a function" expectant)
     (u/expected fn? "type-pred to be a function" type-pred)
     (u/expected fn? "format-parser to be a function" format-parser)
@@ -88,7 +89,7 @@
       :default format-default
       :parser (fn value-parser [value]
                 (-> value
-                  (pred-verify type-pred (str "value to comply with type predicate " type-pred))
+                  (pred-verify type-pred type-pred-msg)
                   else-default
                   parse-format
                   ensure-enum))
@@ -97,7 +98,7 @@
                   write-format
                   else-default
                   ensure-enum
-                  (pred-verify type-pred (str "value to comply with type predicate " type-pred))))
+                  (pred-verify type-pred type-pred-msg)))
       (u/expected "operator-type to be either :default, :parser or :writer" *operator-type*))))
 
 

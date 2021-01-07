@@ -12,6 +12,7 @@
 ## [WIP] 0.0.1 / 2021-January-??
 
 - Fix Ring request body parsing
+- Include data-name in type-pred msg in `coattail.openapi/core-schema->operator`
 
 
 ## 0.0.1-alpha1 / 2021-January-07
