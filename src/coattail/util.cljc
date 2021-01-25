@@ -186,13 +186,13 @@
                                       "date-time" {:parser parse-rfc3339-date-time :writer write-rfc3339-date-time :default #inst "2017-08-23T10:22:22"}
                                       "password"  {:parser identity                :writer str                     :default "s3cr3tp455w0rd"}}}
                   "integer" {:pred   integer?
-                             :format {"int32"     {:parser int      :writer str :default 0}
-                                      "int64"     {:parser long     :writer str :default 0}}}
+                             :format {"int32"     {:parser int      :writer int    :default 0}
+                                      "int64"     {:parser long     :writer long   :default 0}}}
                   "number"  {:pred   number?
-                             :format {"float"     {:parser float    :writer str :default 0.0}
-                                      "double"    {:parser double   :writer str :default 0.0}}}
+                             :format {"float"     {:parser float    :writer float  :default 0.0}
+                                      "double"    {:parser double   :writer double :default 0.0}}}
                   "boolean" {:pred   boolean?
-                             :format {nil         {:parser identity :writer str :default false}}}}
+                             :format {nil         {:parser identity :writer boolean :default false}}}}
      ;; Ring integration stuff
      :body-readers {:string body->string}
      :content-codecs {"application/edn"  {:body-type      :string
