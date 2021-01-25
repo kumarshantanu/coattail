@@ -32,17 +32,18 @@
                  (if-some [content-subdoc (get status-subdoc "content")]
                    (let [rhs (reduce-kv (fn [result content-type content-type-subdoc]
                                           (if-some [schema (get content-type-subdoc "schema")]
-                                            {:content-writer (or (get-in openapi-toolbox [:content-codecs
-                                                                                          content-type
-                                                                                          :content-writer])
-                                                               (throw (ex-info "Cannot find content-writer"
-                                                                        {:content-type content-type})))
-                                             :default        (openapi/schema->default schema openapi-document
-                                                               {:data-name "response"
-                                                                :openapi-toolbox openapi-toolbox})
-                                             :tformat-writer (openapi/schema->writer  schema openapi-document
-                                                               {:data-name "response"
-                                                                :openapi-toolbox openapi-toolbox})}
+                                            (->> {:content-writer (or (get-in openapi-toolbox [:content-codecs
+                                                                                               content-type
+                                                                                               :content-writer])
+                                                                    (throw (ex-info "Cannot find content-writer"
+                                                                             {:content-type content-type})))
+                                                  :default        (openapi/schema->default schema openapi-document
+                                                                    {:data-name "response"
+                                                                     :openapi-toolbox openapi-toolbox})
+                                                  :tformat-writer (openapi/schema->writer  schema openapi-document
+                                                                    {:data-name "response"
+                                                                     :openapi-toolbox openapi-toolbox})}
+                                              (assoc result content-type))
                                             result))
                                {}
                                content-subdoc)]
