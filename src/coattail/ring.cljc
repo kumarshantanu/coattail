@@ -57,7 +57,8 @@
 
 (defn make-response-middleware
   ""
-  [responses-subdoc openapi-document openapi-toolbox]
+  [responses-subdoc openapi-document openapi-toolbox {:keys [apply-data-writer?]
+                                                      :or {apply-data-writer? true}}]
   (u/expected map? "openapi-document as a map" openapi-document)
   (u/expected map? "responses-subdoc as a map" responses-subdoc)
   (let [response? (fn [response]
@@ -88,7 +89,8 @@
                     (u/expected status-operators allowed-ct-msgs content-type)
                     (let [data (:data response)
                           {data-writer :tformat-writer
-                           body-writer :content-writer} (get status-operators content-type)]
+                           body-writer :content-writer} (get status-operators content-type)
+                          data-writer (if apply-data-writer? data-writer identity)]
                       ;; 2. :data should be present to turn into :body
                       (u/expected some? "expected :data in endpoint handler response" data)
                       ;; 3. transform that data into :body
@@ -270,7 +272,7 @@
                                           (make-request-body-middleware <> openapi-document openapi-toolbox))
                                         identity)
                      response-mw   (make-response-middleware (get method-subdoc "responses")
-                                     openapi-document openapi-toolbox)
+                                     openapi-document openapi-toolbox options)
                      route-handler (-> (or (get handlers route-id)
                                          (throw (ex-info (str "No handler defined for route-ID " (pr-str route-id))
                                                   {:route-id route-id})))
@@ -299,10 +301,11 @@
     (i/assert-openapi-document openapi-document)
     (reduce-kv (fn [routes each-path path-subdoc]
                  (u/expected string? "OpenAPI path string" each-path)
-                 (->> (make-method-routes handlers path-subdoc openapi-document
-                        {:openapi-toolbox openapi-toolbox
-                         :openapi-method->route-method       openapi-method->route-method
-                         :openapi-param-name->path-param-key openapi-param-name->path-param-key})
+                 (->> {:openapi-toolbox openapi-toolbox
+                       :openapi-method->route-method       openapi-method->route-method
+                       :openapi-param-name->path-param-key openapi-param-name->path-param-key}
+                   (conj options)
+                   (make-method-routes handlers path-subdoc openapi-document)
                    (array-map each-path)
                    (conj routes)))
       []
