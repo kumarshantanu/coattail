@@ -155,6 +155,8 @@
 ;; ----- toolbox -----
 
 
+(defrecord PWS [parser writer sample])
+
 (def openapi-toolbox
   "A super-tree of all overridable tools for OpenAPI parsing and writing."
   (let [not-implemented (fn not-implemented [path]
@@ -176,23 +178,22 @@
                          (seq? body)    (apply str body)
                          :else          #?(:cljs (throw (ex-info "Do not know how to read body" {:body body}))
                                             :clj (slurp body))))]
-    {; (fn [expectation-msg] [expectation-msg value] [pred expectation-msg value]) -> throws exception on error, else nil
-     :expectant expected
+    {:expectant expected ; (fn [expectation-msg] [expectation-msg val] [pred expectation-msg val]) -> throws on error
      :core-types {"string"  {:pred   string?
-                             :format {nil         {:parser identity                :writer str                     :default ""}
-                                      "byte"      {:parser base64->bytes           :writer bytes->base64           :default [1 2]}
-                                      "binary"    {:parser identity                :writer str                     :default ""}
-                                      "date"      {:parser parse-rfc3339-full-date :writer write-rfc3339-full-date :default #inst "2017-08-23T00:00:00"}
-                                      "date-time" {:parser parse-rfc3339-date-time :writer write-rfc3339-date-time :default #inst "2017-08-23T10:22:22"}
-                                      "password"  {:parser identity                :writer str                     :default "s3cr3tp455w0rd"}}}
+                             :format {nil         (->PWS identity                str                     "")
+                                      "byte"      (->PWS base64->bytes           bytes->base64           [1 2])
+                                      "binary"    (->PWS identity                str                     "")
+                                      "date"      (->PWS parse-rfc3339-full-date write-rfc3339-full-date #inst "2017-08-23T00:00:00")
+                                      "date-time" (->PWS parse-rfc3339-date-time write-rfc3339-date-time #inst "2017-08-23T10:22:22")
+                                      "password"  (->PWS identity                str                     "s3cr3tp455w0rd")}}
                   "integer" {:pred   integer?
-                             :format {"int32"     {:parser int      :writer int    :default 0}
-                                      "int64"     {:parser long     :writer long   :default 0}}}
+                             :format {"int32"     (->PWS int     int     0)
+                                      "int64"     (->PWS long    long    0)}}
                   "number"  {:pred   number?
-                             :format {"float"     {:parser float    :writer float  :default 0.0}
-                                      "double"    {:parser double   :writer double :default 0.0}}}
+                             :format {"float"     (->PWS float   float   0.0)
+                                      "double"    (->PWS double  double  0.0)}}
                   "boolean" {:pred   boolean?
-                             :format {nil         {:parser identity :writer boolean :default false}}}}
+                             :format {nil         (->PWS boolean boolean false)}}}
      ;; Ring integration stuff
      :body-readers {:string body->string}
      :content-codecs {"application/edn"  {:body-type      :string

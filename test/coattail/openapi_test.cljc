@@ -22,5 +22,5 @@
                                                    "Pet"])]
     ;;(println "::::::::" (type ))
     ;;(pp/pprint (keys order-schema))
-    (prn (openapi/schema->default order-schema ts/petstore3-openapi {:data-name "test"}
+    (prn (openapi/schema->sample order-schema ts/petstore3-openapi {:data-name "test"}
            ))))

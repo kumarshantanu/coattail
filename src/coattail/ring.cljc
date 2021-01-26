@@ -19,8 +19,8 @@
   "Given OpenAPI responses sub-document, return a map of status codes to maps {content-type operators} as follows:
   ```
   {200      {\"application/json\" {; :tformat-writer turns :data items into type-formatted :data items
-                                   :tformat-writer fw1  :default tree1  :content-writer cw1}
-             \"application/xml\"  {:tformat-writer fw2  :default tree2  :content-writer cw2}}
+                                   :tformat-writer fw1  :sample tree1  :content-writer cw1}
+             \"application/xml\"  {:tformat-writer fw2  :sample tree2  :content-writer cw2}}
    :default {}}
   ```"
   [responses-subdoc openapi-document openapi-toolbox]
@@ -37,9 +37,9 @@
                                                                                                :content-writer])
                                                                     (throw (ex-info "Cannot find content-writer"
                                                                              {:content-type content-type})))
-                                                  :default        (openapi/schema->default schema openapi-document
-                                                                    {:data-name "response"
-                                                                     :openapi-toolbox openapi-toolbox})
+                                                  :sample         (openapi/schema->sample schema openapi-document
+                                                                     {:data-name "response"
+                                                                      :openapi-toolbox openapi-toolbox})
                                                   :tformat-writer (openapi/schema->writer  schema openapi-document
                                                                     {:data-name "response"
                                                                      :openapi-toolbox openapi-toolbox})}
