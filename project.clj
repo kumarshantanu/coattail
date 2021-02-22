@@ -1,4 +1,4 @@
-(defproject coattail "0.0.1"
+(defproject coattail "0.0.2-SNAPSHOT"
   :description "Clojure/Script OpenAPI tooling to afford instant leverage"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -26,9 +26,9 @@
                     :prep-tasks [["cljsbuild" "once"]]
                     :hooks      [leiningen.cljsbuild]}
              :c09  {:dependencies [[org.clojure/clojure "1.9.0"]]}
-             :c10  {:dependencies [[org.clojure/clojure "1.10.2-rc1"]]}
-             :s10  {:dependencies [[org.clojure/clojure "1.10.2-rc1"]
-                                   [org.clojure/clojurescript "1.10.339"]]}}
+             :c10  {:dependencies [[org.clojure/clojure "1.10.3-rc1"]]}
+             :s10  {:dependencies [[org.clojure/clojure "1.10.3-rc1"]
+                                   [org.clojure/clojurescript "1.10.758"]]}}
   :aliases {"clj-test"  ["with-profile" "c09,dev:c10,dev" "test"]
             "cljs-test" ["with-profile" "cljs,s10" "doo" "node" "once"]}
   :deploy-repositories [["releases" {:url "https://clojars.org" :creds :gpg}]])
