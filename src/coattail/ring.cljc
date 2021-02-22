@@ -12,8 +12,7 @@
     [clojure.string :as string]
     [coattail.internal :as i]
     [coattail.util :as u]
-    [coattail.openapi :as openapi])
-  #?(:clj (:import [clojure.lang ExceptionInfo])))
+    [coattail.openapi :as openapi]))
 
 
 (def event-invalid-path-params        "coattail.invalid.path.params")
@@ -183,11 +182,12 @@
                        (if (volatile? arg)  ; error container?
                          arg
                          (try (f arg)
-                           (catch ExceptionInfo ex
+                           (catch #?(:cljs js/Error
+                                      :clj Exception) ex
                              #?(:clj (.printStackTrace ex))
                              ; wrap in (makeshift) error container
                              (volatile! (g arg ex))))))
-        respond-400  (fn [msg ^ExceptionInfo ex]
+        respond-400  (fn [msg ^Exception ex]
                        {:status 400
                         :body (str msg
                                 \space \- \space #?(:cljs (.-message ex)
@@ -212,14 +212,14 @@
                    :body "Request body is missing"
                    :headers {"Content-type" "text/plain"}})
                 (let [[data error] (-> request-body
-                                     (apply-fn body-reader    (fn [body ^ExceptionInfo ex]
+                                     (apply-fn body-reader    (fn [body ex]
                                                                 (event-logger event-request-body-read-error)
                                                                 (respond-400 "Cannot read request body" ex)))
-                                     (apply-fn content-parser (fn [body ^ExceptionInfo ex]
+                                     (apply-fn content-parser (fn [body ex]
                                                                 (event-logger event-request-body-parse-error)
                                                                 (respond-400 (str "Cannot parse request body as "
                                                                                content-type) ex)))
-                                     (apply-fn data-parser    (fn [body ^ExceptionInfo ex]
+                                     (apply-fn data-parser    (fn [body ex]
                                                                 (event-logger event-request-body-openapi-error)
                                                                 (respond-400
                                                                   "Cannot parse request body as per OpenAPI schema"
