@@ -22,6 +22,7 @@
   - `coattail.request.body.read.error`
   - `coattail.request.body.parse.error`
   - `coattail.request.body.openapi.error`
+- Deep-demunge type-predicate name for error messages
 
 
 ## 0.0.1 / 2021-February-22
