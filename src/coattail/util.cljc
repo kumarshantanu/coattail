@@ -215,7 +215,7 @@
                                                                                        js->clj))
                                                               :clj (or
                                                                      (resolve-var 'jsonista.core/read-value)
-                                                                     (resolve-var 'cheshire.core/parse-string)
+                                                                     (resolve-var 'cheshire.core/parse-string-strict)
                                                                      (resolve-var 'clojure.data.json/read-str)
                                                                      (not-implemented [:content-codecs
                                                                                        "application/json"
