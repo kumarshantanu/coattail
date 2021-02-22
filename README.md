@@ -37,6 +37,7 @@ Once you have cloned this repo, `cd` into it and clone the following repo:
 
 ```shell
 cd external
+curl https://petstore3.swagger.io/api/v3/openapi.json -o petstore3-openapi.json
 git clone git@github.com:OAI/OpenAPI-Specification.git
 cd OpenAPI-Specification
 git checkout 3.1.0-rc1

@@ -7,9 +7,12 @@
 - [Todo] Documentation
 - [Todo] Example app
 - [Todo] OpenAPI 3.1 support
+  - [Todo] Split out JSON-Schema 2020-12 support in another namespace
+- [Todo] Process requestBody without `"required": true` attribute
+- [Todo] Honour `"required"` attribute for path/query parameters
 
 
-## [WIP] 0.0.1 / 2021-January-??
+## 0.0.1 / 2021-February-22
 
 - Fix Ring request body parsing
 - Include data-name in type-pred msg in `coattail.openapi/core-schema->operator`
