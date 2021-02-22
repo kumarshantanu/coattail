@@ -15,6 +15,13 @@
 ## [WIP] 0.0.2 / 2021-February-??
 
 - Add support for configurable event logger
+- OpenAPI validation error events
+  - `coattail.invalid.path.params`
+  - `coattail.request.content.type.error`
+  - `coattail.request.body.missing`
+  - `coattail.request.body.read.error`
+  - `coattail.request.body.parse.error`
+  - `coattail.request.body.openapi.error`
 
 
 ## 0.0.1 / 2021-February-22

@@ -12,13 +12,16 @@
     [clojure.string :as string]
     [coattail.internal :as i]
     [coattail.util :as u]
-    [coattail.openapi :as openapi]))
+    [coattail.openapi :as openapi])
+  #?(:clj (:import [clojure.lang ExceptionInfo])))
 
 
-(def event-invalid-path-params  "coattail.invalid.path.params")
-(def event-request-body-missing "coattail.request.body.missing")
-(def event-request-body-error   "coattail.request.body.error")
-(def event-request-content-type "coattail.request.content.type.error")
+(def event-invalid-path-params        "coattail.invalid.path.params")
+(def event-request-content-type-error "coattail.request.content.type.error")
+(def event-request-body-missing       "coattail.request.body.missing")
+(def event-request-body-read-error    "coattail.request.body.read.error")
+(def event-request-body-parse-error   "coattail.request.body.parse.error")
+(def event-request-body-openapi-error "coattail.request.body.openapi.error")
 
 
 (defn make-response-operators
@@ -176,7 +179,25 @@
                                            (assoc-in result [content-type :data-parser] <>)))
                                     content-handlers
                                     content-handlers)
-        event-logger     (:event-logger openapi-toolbox)]
+        apply-fn     (fn [arg f g]
+                       (if (volatile? arg)  ; error container?
+                         arg
+                         (try (f arg)
+                           (catch ExceptionInfo ex
+                             #?(:clj (.printStackTrace ex))
+                             ; wrap in (makeshift) error container
+                             (volatile! (g arg ex))))))
+        respond-400  (fn [msg ^ExceptionInfo ex]
+                       {:status 400
+                        :body (str msg
+                                \space \- \space #?(:cljs (.-message ex)
+                                                     :clj (.getMessage ex))
+                                \: \space (-> ex ex-data pr-str))
+                        :headers {"Content-type" "text/plain"}})
+        data-&-error (fn [arg] (if (volatile? arg)  ; error container?
+                                 [nil (deref arg)]
+                                 [arg nil]))
+        event-logger (:event-logger openapi-toolbox)]
     (fn request-body-middleware [handler]
       (fn [request]
         (let [content-type (get-in request [:headers "content-type"])]
@@ -190,29 +211,27 @@
                   {:status 406
                    :body "Request body is missing"
                    :headers {"Content-type" "text/plain"}})
-                (let [[request error] (try
-                                        [(->> request-body
-                                           body-reader
-                                           content-parser
-                                           data-parser
-                                           (assoc request :data)) nil]
-                                        (catch #?(:cljs ExceptionInfo
-                                                   :clj clojure.lang.ExceptionInfo) ex
-                                          #?(:clj (.printStackTrace ex))
-                                          [nil {:status 400
-                                                :body (str #?(:cljs (.-message ex)
-                                                               :clj (.getMessage ex))
-                                                        \space
-                                                        (-> ex ex-data pr-str))
-                                                :headers {"Content-type" "text/plain"}}]))]
-                  (if error
-                    (do
-                      (event-logger event-request-body-error {:error (:body error)})
-                      error)
-                    (handler request)))))
+                (let [[data error] (-> request-body
+                                     (apply-fn body-reader    (fn [body ^ExceptionInfo ex]
+                                                                (event-logger event-request-body-read-error)
+                                                                (respond-400 "Cannot read request body" ex)))
+                                     (apply-fn content-parser (fn [body ^ExceptionInfo ex]
+                                                                (event-logger event-request-body-parse-error)
+                                                                (respond-400 (str "Cannot parse request body as "
+                                                                               content-type) ex)))
+                                     (apply-fn data-parser    (fn [body ^ExceptionInfo ex]
+                                                                (event-logger event-request-body-openapi-error)
+                                                                (respond-400
+                                                                  "Cannot parse request body as per OpenAPI schema"
+                                                                  ex)))
+                                     data-&-error)]
+                  (or error
+                    (-> request
+                      (assoc :data data)
+                      handler)))))
             (do
-              (event-logger event-request-content-type {:supported supported-content-types
-                                                        :supplied  content-type})
+              (event-logger event-request-content-type-error {:supported supported-content-types
+                                                              :supplied  content-type})
               {:status 415
                :body (u/format-string "Content type '%s' is not supported. Supported: %s"
                        content-type
