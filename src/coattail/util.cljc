@@ -157,6 +157,7 @@
 
 (defrecord PWS [parser writer sample])
 
+
 (def openapi-toolbox
   "A super-tree of all overridable tools for OpenAPI parsing and writing."
   (let [not-implemented (fn not-implemented [path]
@@ -172,6 +173,10 @@
                                       (require (symbol (namespace qualified-symbol)))
                                       (catch Exception _))
                                     (resolve qualified-symbol)))))
+        event-logger (fn [name & more]
+                       (binding #?(:cljs []
+                                    :clj [*out* *err*])
+                         (apply println (format-string ":::[Event] [%s]" (pr-str name)) more)))
         body->string (fn body->string [body]
                        (cond
                          (string? body) body
@@ -179,6 +184,10 @@
                          :else          #?(:cljs (throw (ex-info "Do not know how to read body" {:body body}))
                                             :clj (slurp body))))]
     {:expectant expected ; (fn [expectation-msg] [expectation-msg val] [pred expectation-msg val]) -> throws on error
+     :event-logger (fn
+                     ([name]                (event-logger name))
+                     ([name data]           (event-logger name data))
+                     ([name data exception] (event-logger name data exception)))
      :core-types {"string"  {:pred   string?
                              :format {nil         (->PWS identity                str                     "")
                                       "byte"      (->PWS base64->bytes           bytes->base64           [1 2])

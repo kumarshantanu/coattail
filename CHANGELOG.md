@@ -14,7 +14,7 @@
 
 ## [WIP] 0.0.2 / 2021-February-??
 
-- [Todo] Add support for configurable event logger
+- Add support for configurable event logger
 
 
 ## 0.0.1 / 2021-February-22

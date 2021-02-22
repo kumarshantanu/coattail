@@ -15,6 +15,12 @@
     [coattail.openapi :as openapi]))
 
 
+(def event-invalid-path-params  "coattail.invalid.path.params")
+(def event-request-body-missing "coattail.request.body.missing")
+(def event-request-body-error   "coattail.request.body.error")
+(def event-request-content-type "coattail.request.content.type.error")
+
+
 (defn make-response-operators
   "Given OpenAPI responses sub-document, return a map of status codes to maps {content-type operators} as follows:
   ```
@@ -129,7 +135,8 @@
                                          param-parser
                                          (assoc m param-key)))
                             {}
-                            param-parsers))]
+                            param-parsers))
+          event-logger  (:event-logger openapi-toolbox)]
       (fn params-middleware [handler]
         (fn [request]
           (let [[request error] (try
@@ -143,7 +150,9 @@
                                           :headers {"Content-type" "text/plain"}}]))]
             (if (some? request)
               (handler request)
-              error)))))))
+              (do
+                (event-logger event-invalid-path-params {:error (:body error)})
+                error))))))))
 
 
 (defn make-request-body-middleware
@@ -166,7 +175,8 @@
                                                                                  :openapi-toolbox openapi-toolbox})
                                            (assoc-in result [content-type :data-parser] <>)))
                                     content-handlers
-                                    content-handlers)]
+                                    content-handlers)
+        event-logger     (:event-logger openapi-toolbox)]
     (fn request-body-middleware [handler]
       (fn [request]
         (let [content-type (get-in request [:headers "content-type"])]
@@ -175,30 +185,39 @@
                   data-parser  (get-in content-handlers [content-type :data-parser])
                   request-body (:body request)]
               (if (nil? request-body)
-                {:status 406
-                 :body "Request body is missing"
-                 :headers {"Content-type" "text/plain"}}
-                (try
-                  (->> request-body
-                    body-reader
-                    content-parser
-                    data-parser
-                    (assoc request :data)
-                    handler)
-                  (catch #?(:cljs ExceptionInfo
-                             :clj clojure.lang.ExceptionInfo) ex
-                    #?(:clj (.printStackTrace ex))
-                    {:status 400
-                     :body (str #?(:cljs (.-message ex)
-                                    :clj (.getMessage ex))
-                             \space
-                             (-> ex ex-data pr-str))
-                     :headers {"Content-type" "text/plain"}}))))
-            {:status 415
-             :body (u/format-string "Content type '%s' is not supported. Supported: %s"
-                     content-type
-                     supported-content-types)
-             :headers {"Content-type" "text/plain"}}))))))
+                (do
+                  (event-logger event-request-body-missing)
+                  {:status 406
+                   :body "Request body is missing"
+                   :headers {"Content-type" "text/plain"}})
+                (let [[request error] (try
+                                        [(->> request-body
+                                           body-reader
+                                           content-parser
+                                           data-parser
+                                           (assoc request :data)) nil]
+                                        (catch #?(:cljs ExceptionInfo
+                                                   :clj clojure.lang.ExceptionInfo) ex
+                                          #?(:clj (.printStackTrace ex))
+                                          [nil {:status 400
+                                                :body (str #?(:cljs (.-message ex)
+                                                               :clj (.getMessage ex))
+                                                        \space
+                                                        (-> ex ex-data pr-str))
+                                                :headers {"Content-type" "text/plain"}}]))]
+                  (if error
+                    (do
+                      (event-logger event-request-body-error {:error (:body error)})
+                      error)
+                    (handler request)))))
+            (do
+              (event-logger event-request-content-type {:supported supported-content-types
+                                                        :supplied  content-type})
+              {:status 415
+               :body (u/format-string "Content type '%s' is not supported. Supported: %s"
+                       content-type
+                       supported-content-types)
+               :headers {"Content-type" "text/plain"}})))))))
 
 
 (defn make-method-routes
