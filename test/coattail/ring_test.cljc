@@ -35,7 +35,7 @@
                                   m))
                  routes))
     (is (vector? routes))
-    (is (= (count handlers) (reduce (fn [a x]
+    (is (= (count handlers) (reduce (fn [^long a x]
                                       (+ a (count (val (first x)))))
                               0
                               routes)))))
