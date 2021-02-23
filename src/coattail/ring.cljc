@@ -339,7 +339,7 @@
     (i/assert-openapi-document openapi-document)
     (reduce-kv (fn [routes each-path path-subdoc]
                  (u/expected string? "OpenAPI path string" each-path)
-                 (->> {:openapi-toolbox openapi-toolbox
+                 (->> {:openapi-toolbox (merge u/openapi-toolbox openapi-toolbox)
                        :openapi-method->route-method       openapi-method->route-method
                        :openapi-param-name->path-param-key openapi-param-name->path-param-key}
                    (conj options)
